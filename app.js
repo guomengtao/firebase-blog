@@ -19,7 +19,8 @@ const postsRef = db.collection('posts');
 // Function to format date
 function formatDate(timestamp) {
     if (!timestamp) return '';
-    return new Date(timestamp).toLocaleDateString('zh-CN', {
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -45,65 +46,71 @@ window.addEventListener('offline', updateConnectionStatus);
 updateConnectionStatus();
 
 // Function to render posts
-function renderPosts() {
-    postsRef.where('status', '==', 'published')
-           .orderBy('timestamp', 'desc')
-           .get()
-           .then((snapshot) => {
+async function renderPosts() {
+    try {
+        const snapshot = await postsRef
+            .where('status', '==', 'published')
+            .orderBy('timestamp', 'desc')
+            .get();
+
         const postsContainer = document.getElementById('posts');
         postsContainer.innerHTML = '';
         
         if (snapshot.empty) {
-            postsContainer.innerHTML = '<p>还没有任何文章。</p>';
+            postsContainer.innerHTML = '<div class="alert alert-info">还没有任何文章。</div>';
             return;
         }
         
-        snapshot.forEach((doc) => {
+        const postsHtml = snapshot.docs.map(doc => {
             const post = doc.data();
-            const postElement = document.createElement('article');
-            postElement.className = 'blog-post';
+            const coverImageHtml = post.coverImage 
+                ? `<div class="post-cover"><img src="${post.coverImage}" alt="${post.title}" loading="lazy"></div>` 
+                : '';
             
-            let coverImageHtml = '';
-            if (post.coverImage) {
-                coverImageHtml = `
-                    <div class="post-cover">
-                        <img src="${post.coverImage}" alt="${post.title}">
-                    </div>
-                `;
-            }
+            const tagsHtml = post.tags && post.tags.length 
+                ? `<div class="post-tags">${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` 
+                : '';
 
-            let tagsHtml = '';
-            if (post.tags && post.tags.length > 0) {
-                tagsHtml = `
-                    <div class="post-tags">
-                        ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                `;
-            }
+            const excerpt = post.content
+                ? post.content.replace(/<[^>]*>/g, '').substring(0, 200) + '...'
+                : '';
 
-            postElement.innerHTML = `
-                ${coverImageHtml}
-                <h2 class="post-title">
-                    <a href="post.html?id=${doc.id}">${post.title}</a>
-                </h2>
-                ${tagsHtml}
-                <div class="post-meta">
-                    <span>发布于 ${formatDate(post.timestamp)}</span>
-                    <span>阅读 ${post.views || 0}</span>
-                </div>
-                <div class="post-excerpt">
-                    ${post.content.substring(0, 200)}...
-                </div>
-                <a href="post.html?id=${doc.id}" class="read-more">阅读全文</a>
+            return `
+                <article class="blog-post">
+                    ${coverImageHtml}
+                    <h2 class="post-title">
+                        <a href="post.html?id=${doc.id}">${post.title || '无标题'}</a>
+                    </h2>
+                    ${tagsHtml}
+                    <div class="post-meta">
+                        <span><i class="far fa-clock"></i> ${formatDate(post.timestamp)}</span>
+                        <span><i class="far fa-eye"></i> ${post.views || 0}</span>
+                        <span><i class="far fa-comments"></i> ${Object.keys(post.comments || {}).length}</span>
+                    </div>
+                    <div class="post-excerpt">${excerpt}</div>
+                    <a href="post.html?id=${doc.id}" class="read-more">阅读全文 <i class="fas fa-arrow-right"></i></a>
+                </article>
             `;
-            
-            postsContainer.appendChild(postElement);
+        }).join('');
+
+        postsContainer.innerHTML = postsHtml;
+
+        // Log page view
+        await db.collection('logs').add({
+            action: 'view_home',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            type: 'visitor'
         });
-    }).catch(error => {
+    } catch (error) {
         console.error('Error loading posts:', error);
         const postsContainer = document.getElementById('posts');
-        postsContainer.innerHTML = '<p>加载文章时出错。</p>';
-    });
+        postsContainer.innerHTML = `
+            <div class="alert alert-danger">
+                加载文章时出错。请刷新页面重试。
+                <br>错误信息：${error.message}
+            </div>
+        `;
+    }
 }
 
 // Initial render

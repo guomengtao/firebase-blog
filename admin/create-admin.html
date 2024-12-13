@@ -14,14 +14,19 @@
                     <div class="card-body">
                         <h3 class="card-title text-center mb-4">Create Admin Account</h3>
                         <div id="result" class="alert d-none"></div>
-                        <form id="adminForm">
+                        <form id="adminForm" autocomplete="off">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" value="admin@example.com" required>
+                                <input type="email" class="form-control" id="email" 
+                                       value="admin@example.com" required 
+                                       autocomplete="username">
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" value="admin123456" required>
+                                <input type="password" class="form-control" id="password" 
+                                       value="admin123456" required 
+                                       autocomplete="new-password"
+                                       minlength="6">
                             </div>
                             <div class="mb-3">
                                 <p class="text-danger">Please change the password after first login!</p>
