@@ -17,7 +17,6 @@ const storage = firebase.storage();
 // DOM Elements
 const blogForm = document.getElementById('blogForm');
 const titleInput = document.getElementById('title');
-const urlSlugInput = document.getElementById('urlSlug');
 const coverImageInput = document.getElementById('coverImage');
 const coverPreview = document.getElementById('coverPreview');
 const tagInput = document.getElementById('tagInput');
@@ -128,16 +127,6 @@ coverImageInput.addEventListener('change', async (e) => {
     }
 });
 
-// Generate URL slug from title
-titleInput.addEventListener('input', () => {
-    if (!urlSlugInput.value) {
-        urlSlugInput.value = titleInput.value
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '');
-    }
-});
-
 // Form submission
 blogForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -157,19 +146,37 @@ blogForm.addEventListener('submit', async (e) => {
         // Create blog post document
         const post = {
             title: titleInput.value,
-            urlSlug: urlSlugInput.value || generateUrlSlug(),
             coverImage: coverImageUrl,
             content: contentEditor.innerHTML,
             tags: Array.from(tags),
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'published',
+            views: 0,
+            comments: {}
         };
 
         // Save to Firestore
-        await db.collection('posts').add(post);
+        const docRef = await db.collection('posts').add(post);
 
-        // Redirect to home page
-        window.location.href = 'index.html';
+        // Log the creation
+        await db.collection('logs').add({
+            action: 'create_post',
+            postId: docRef.id,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            details: `Created post: ${post.title}`
+        });
+
+        // Update categories
+        for (const tag of tags) {
+            const categoryRef = db.collection('categories').doc(tag);
+            await categoryRef.set({
+                name: tag,
+                count: firebase.firestore.FieldValue.increment(1)
+            }, { merge: true });
+        }
+
+        // Redirect to the new post
+        window.location.href = `post.html?id=${docRef.id}`;
     } catch (error) {
         console.error('Error saving blog post:', error);
         alert('保存博客文章时出错: ' + error.message);
@@ -177,8 +184,3 @@ blogForm.addEventListener('submit', async (e) => {
         loadingDiv.style.display = 'none';
     }
 });
-
-// Generate random URL slug if not provided
-function generateUrlSlug() {
-    return 'post-' + Date.now();
-}

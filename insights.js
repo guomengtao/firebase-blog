@@ -279,13 +279,22 @@ function updateLatestPosts(posts) {
     const tbody = document.getElementById('latestPosts');
     tbody.innerHTML = '';
 
+    if (posts.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="4" class="text-center">暂无文章</td>';
+        tbody.appendChild(row);
+        return;
+    }
+
     posts.slice(0, 5).forEach(post => {
         const row = document.createElement('tr');
+        const commentsCount = post.comments ? Object.keys(post.comments).length : 0;
+        
         row.innerHTML = `
             <td><a href="post.html?id=${post.id}">${post.title}</a></td>
             <td>${new Date(post.timestamp).toLocaleDateString()}</td>
             <td>${post.views || 0}</td>
-            <td>${post.comments || 0}</td>
+            <td>${commentsCount}</td>
         `;
         tbody.appendChild(row);
     });
