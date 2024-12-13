@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Connection Status</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .status-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .online {
+            background-color: #4CAF50;
+        }
+        .offline {
+            background-color: #f44336;
+        }
+        .status-details {
+            margin-top: 20px;
+        }
+        .refresh-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .refresh-button:hover {
+            background-color: #45a049;
+        }
+        .nav-link {
+            display: inline-block;
+            margin: 10px 0;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .error-box {
+            background-color: #fff3f3;
+            border: 1px solid #ffcdd2;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .error-box ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .error-box li {
+            margin: 5px 0;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div id="blog">
+        <a href="index.html" class="nav-link">← 返回博客首页</a>
+        <h1>Firebase 连接状态</h1>
+        
+        <div class="status-card">
+            <h2>实时状态</h2>
+            <div>
+                <span class="status-indicator" id="statusDot"></span>
+                <span id="connectionStatus">检查中...</span>
+            </div>
+            <div id="networkStatus" style="margin-top: 10px;"></div>
+            <button class="refresh-button" onclick="checkFirebaseStatus()">刷新状态</button>
+        </div>
+
+        <div class="status-card">
+            <h2>详细信息</h2>
+            <div class="status-details">
+                <p>项目ID: <span id="projectId"></span></p>
+                <p>数据库状态: <span id="dbStatus"></span></p>
+                <p>REST API 状态: <span id="restApiStatus">检查中...</span></p>
+                <p>最后检查时间: <span id="lastCheck"></span></p>
+                <div id="errorDetails"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-status.js"></script>
+</body>
+</html>
