@@ -13,9 +13,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Get post slug from URL
+// Get post ID from URL
 const urlParams = new URLSearchParams(window.location.search);
-const slug = urlParams.get('slug');
+const postId = urlParams.get('id');
 
 // Update connection status
 const statusElement = document.getElementById('status');
@@ -34,15 +34,29 @@ window.addEventListener('offline', updateConnectionStatus);
 updateConnectionStatus();
 
 // Load post content
-if (slug) {
-    db.collection('posts').where('slug', '==', slug).get()
-        .then((querySnapshot) => {
-            if (!querySnapshot.empty) {
-                const post = querySnapshot.docs[0].data();
+if (postId) {
+    db.collection('posts').doc(postId).get()
+        .then((doc) => {
+            if (doc.exists) {
+                const post = doc.data();
                 document.title = post.title + ' - Blog';
                 document.getElementById('post-title').textContent = post.title;
                 document.getElementById('post-date').textContent = new Date(post.timestamp).toLocaleString();
                 document.getElementById('post-body').innerHTML = post.content;
+
+                // Update view count
+                const newViews = (post.views || 0) + 1;
+                db.collection('posts').doc(postId).update({
+                    views: newViews
+                }).catch(console.error);
+
+                // Log visit
+                db.collection('visitors').add({
+                    postId: postId,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    page: 'post',
+                    action: 'view'
+                }).catch(console.error);
             } else {
                 document.getElementById('post-title').textContent = '文章未找到';
                 document.getElementById('post-body').innerHTML = '<p>抱歉，找不到这篇文章。</p>';

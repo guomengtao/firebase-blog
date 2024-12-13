@@ -19,8 +19,7 @@ const postsRef = db.collection('posts');
 // Function to format date
 function formatDate(timestamp) {
     if (!timestamp) return '';
-    const date = timestamp.toDate();
-    return date.toLocaleDateString('zh-CN', {
+    return new Date(timestamp).toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -29,11 +28,35 @@ function formatDate(timestamp) {
     });
 }
 
+// Update connection status
+const statusElement = document.getElementById('status');
+const updateConnectionStatus = () => {
+    if (navigator.onLine) {
+        statusElement.textContent = 'Connected';
+        statusElement.style.color = '#4CAF50';
+    } else {
+        statusElement.textContent = 'Offline';
+        statusElement.style.color = '#f44336';
+    }
+};
+
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', updateConnectionStatus);
+updateConnectionStatus();
+
 // Function to render posts
 function renderPosts() {
-    postsRef.orderBy('createdAt', 'desc').get().then((snapshot) => {
+    postsRef.where('status', '==', 'published')
+           .orderBy('timestamp', 'desc')
+           .get()
+           .then((snapshot) => {
         const postsContainer = document.getElementById('posts');
         postsContainer.innerHTML = '';
+        
+        if (snapshot.empty) {
+            postsContainer.innerHTML = '<p>还没有任何文章。</p>';
+            return;
+        }
         
         snapshot.forEach((doc) => {
             const post = doc.data();
@@ -61,20 +84,25 @@ function renderPosts() {
             postElement.innerHTML = `
                 ${coverImageHtml}
                 <h2 class="post-title">
-                    <a href="post.html?slug=${post.urlSlug}">${post.title}</a>
+                    <a href="post.html?id=${doc.id}">${post.title}</a>
                 </h2>
                 ${tagsHtml}
                 <div class="post-meta">
-                    发布于 ${formatDate(post.createdAt)}
+                    <span>发布于 ${formatDate(post.timestamp)}</span>
+                    <span>阅读 ${post.views || 0}</span>
                 </div>
                 <div class="post-excerpt">
                     ${post.content.substring(0, 200)}...
                 </div>
-                <a href="post.html?slug=${post.urlSlug}" class="read-more">阅读全文</a>
+                <a href="post.html?id=${doc.id}" class="read-more">阅读全文</a>
             `;
             
             postsContainer.appendChild(postElement);
         });
+    }).catch(error => {
+        console.error('Error loading posts:', error);
+        const postsContainer = document.getElementById('posts');
+        postsContainer.innerHTML = '<p>加载文章时出错。</p>';
     });
 }
 
