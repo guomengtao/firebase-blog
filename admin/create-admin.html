@@ -14,34 +14,43 @@
                     <div class="card-body">
                         <h3 class="card-title text-center mb-4">Create Admin Account</h3>
                         <div id="result" class="alert d-none"></div>
-                        <div class="mb-3">
-                            <p>Default admin account will be created:</p>
-                            <ul>
-                                <li>Email: admin@example.com</li>
-                                <li>Password: admin123456</li>
-                            </ul>
-                            <p class="text-danger">Please change the password after first login!</p>
-                        </div>
-                        <button id="createAdmin" class="btn btn-primary w-100">Create Admin Account</button>
+                        <form id="adminForm">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" value="admin@example.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" value="admin123456" required>
+                            </div>
+                            <div class="mb-3">
+                                <p class="text-danger">Please change the password after first login!</p>
+                            </div>
+                            <button type="submit" id="createAdmin" class="btn btn-primary w-100">Create Admin Account</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="create-admin.js"></script>
     <script>
-        document.getElementById('createAdmin').addEventListener('click', async () => {
+        document.getElementById('adminForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             const button = document.getElementById('createAdmin');
             const result = document.getElementById('result');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
             
             button.disabled = true;
             button.textContent = 'Creating...';
             
-            const success = await createAdmin('admin@example.com', 'admin123456');
+            const success = await createAdmin(email, password);
             
             result.classList.remove('d-none', 'alert-success', 'alert-danger');
             if (success) {

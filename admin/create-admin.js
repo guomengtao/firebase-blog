@@ -17,6 +17,12 @@ const db = firebase.firestore();
 // Create admin account
 async function createAdmin(email, password) {
     try {
+        // First check if user already exists
+        const userQuery = await db.collection('managers').where('email', '==', email).get();
+        if (!userQuery.empty) {
+            throw new Error('Admin account already exists');
+        }
+
         // Create user in Firebase Auth
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
@@ -27,15 +33,23 @@ async function createAdmin(email, password) {
             isAdmin: true,
             role: 'admin',
             active: true,
-            createdAt: Date.now(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             lastLogin: null
+        });
+
+        // Set custom claims (requires Cloud Functions)
+        await db.collection('adminRequests').doc(user.uid).set({
+            email: email,
+            requestType: 'setAdmin',
+            status: 'pending',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         // Create initial log entry
         await db.collection('logs').add({
             action: 'create_admin',
             details: `Created admin account: ${email}`,
-            timestamp: Date.now(),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             type: 'system'
         });
 
@@ -43,7 +57,7 @@ async function createAdmin(email, password) {
         return true;
     } catch (error) {
         console.error('Error creating admin:', error);
-        return false;
+        throw error;
     }
 }
 
