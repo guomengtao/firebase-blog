@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="blog">
+        <div id="connection-status" class="connection-status">
+            Firebase 状态: <span id="status">检查中...</span>
+            <a href="firebase-status.html" style="margin-left: 10px; color: #4CAF50;">查看详细状态</a>
+        </div>
+        <div class="nav-links" style="text-align: center; margin: 10px 0;">
+            <a href="index.html" style="margin-right: 15px; color: #4CAF50; text-decoration: none;">返回首页</a>
+            <a href="chat.html" style="margin-right: 15px; color: #4CAF50; text-decoration: none;">进入聊天室</a>
+            <a href="editor.html" style="margin-right: 15px; color: #4CAF50; text-decoration: none;">写新博客</a>
+            <a href="images.html" style="color: #4CAF50; text-decoration: none;">图片管理</a>
+        </div>
+        
+        <div id="post-content">
+            <h1 id="post-title">加载中...</h1>
+            <div class="post-meta">
+                <span id="post-date"></span>
+            </div>
+            <div id="post-body"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="post.js"></script>
+</body>
+</html>
