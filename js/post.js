@@ -58,6 +58,16 @@ async function logPostView(postId) {
                 ip: await getClientIP()
             });
 
+            // Log visitor
+            await db.collection('logs').add({
+                type: 'visitor',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                sessionId: getSessionId(),
+                visitorId: await getVisitorId(),
+                ip: await getClientIP(),
+                userAgent: navigator.userAgent
+            });
+
             // Increment post views
             await db.collection('posts').doc(postId).update({
                 views: firebase.firestore.FieldValue.increment(1)

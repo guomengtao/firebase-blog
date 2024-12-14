@@ -80,7 +80,7 @@ async function loadPosts() {
 // Load views data
 async function loadViews() {
     const snapshot = await db.collection('logs')
-        .where('action', 'in', ['view_post', 'view_home'])
+        .where('type', '==', 'view')
         .orderBy('timestamp', 'desc')
         .limit(1000)
         .get();
