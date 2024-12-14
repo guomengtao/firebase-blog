@@ -17,6 +17,9 @@ const db = firebase.firestore();
 // Google Auth Provider
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
+// GitHub Auth Provider
+const githubProvider = new firebase.auth.GithubAuthProvider();
+
 // Create admin account with email/password
 async function createAdmin(email, password) {
     try {
@@ -126,6 +129,40 @@ document.getElementById('googleSignIn').addEventListener('click', async () => {
     }
 });
 
+// Handle GitHub Sign In
+document.getElementById('githubSignIn').addEventListener('click', async () => {
+    const button = document.getElementById('githubSignIn');
+    const result = document.getElementById('result');
+    
+    button.disabled = true;
+    
+    try {
+        const userCredential = await auth.signInWithPopup(githubProvider);
+        const user = userCredential.user;
+        
+        // Check if user is already an admin
+        const adminDoc = await db.collection('managers').doc(user.uid).get();
+        if (adminDoc.exists) {
+            throw new Error('This GitHub account is already registered as an admin');
+        }
+        
+        // Set admin privileges
+        await setAdminPrivileges(user);
+        
+        result.classList.remove('d-none', 'alert-success', 'alert-danger');
+        result.classList.add('alert-success');
+        result.textContent = 'Admin account created successfully with GitHub! You can now login at /admin/login.html';
+        button.style.display = 'none';
+        document.getElementById('adminForm').style.display = 'none';
+    } catch (error) {
+        console.error('GitHub sign in error:', error);
+        result.classList.remove('d-none', 'alert-success', 'alert-danger');
+        result.classList.add('alert-danger');
+        result.textContent = error.message;
+        button.disabled = false;
+    }
+});
+
 // Handle form submission for email/password
 document.getElementById('adminForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -145,6 +182,7 @@ document.getElementById('adminForm').addEventListener('submit', async (e) => {
         result.textContent = 'Admin account created successfully! You can now login at /admin/login.html';
         button.style.display = 'none';
         document.getElementById('googleSignIn').style.display = 'none';
+        document.getElementById('githubSignIn').style.display = 'none';
     } catch (error) {
         result.classList.remove('d-none', 'alert-success', 'alert-danger');
         result.classList.add('alert-danger');

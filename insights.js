@@ -33,15 +33,17 @@ async function loadAllData() {
             postsData,
             viewsData,
             commentsData,
-            categoriesData
+            categoriesData,
+            visitorData
         ] = await Promise.all([
             loadPosts(),
             loadViews(),
             loadComments(),
-            loadCategories()
+            loadCategories(),
+            loadVisitors()
         ]);
 
-        updateStatistics(postsData, viewsData, commentsData);
+        updateStatistics(postsData, viewsData, commentsData, visitorData);
         updatePopularPostsChart(postsData);
         updateCategoriesChart(categoriesData);
         updateWeeklyActivityChart(viewsData);
@@ -78,12 +80,28 @@ async function loadPosts() {
 // Load views data
 async function loadViews() {
     const snapshot = await db.collection('logs')
-        .where('action', '==', 'view_post')
+        .where('action', 'in', ['view_post', 'view_home'])
         .orderBy('timestamp', 'desc')
         .limit(1000)
         .get();
     
-    return snapshot.docs.map(doc => doc.data());
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+}
+
+// Load visitors data
+async function loadVisitors() {
+    const snapshot = await db.collection('logs')
+        .where('type', '==', 'visitor')
+        .orderBy('timestamp', 'desc')
+        .get();
+    
+    return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
 }
 
 // Load comments data
@@ -111,13 +129,17 @@ async function loadCategories() {
 }
 
 // Update statistics cards
-function updateStatistics(posts, views, comments) {
+function updateStatistics(posts, views, comments, visitors) {
+    // Get unique visitors by IP or session ID
+    const uniqueVisitors = new Set(
+        visitors.map(v => v.visitorId || v.sessionId || v.ip)
+    ).size;
+
     // Update numbers
     document.getElementById('totalPosts').textContent = posts.length;
     document.getElementById('totalViews').textContent = views.length;
     document.getElementById('totalComments').textContent = comments.length;
-    document.getElementById('activeUsers').textContent = 
-        new Set(views.map(v => v.userId || v.visitorId)).size;
+    document.getElementById('activeUsers').textContent = uniqueVisitors;
 
     // Update trends (comparing with previous period)
     const now = new Date();
@@ -127,16 +149,16 @@ function updateStatistics(posts, views, comments) {
     const recentPosts = posts.filter(p => p.timestamp?.toDate?.() > lastWeek || p.timestamp > lastWeek).length;
     const recentViews = views.filter(v => v.timestamp?.toDate?.() > lastWeek || v.timestamp > lastWeek).length;
     const recentComments = comments.filter(c => c.timestamp?.toDate?.() > lastWeek || c.timestamp > lastWeek).length;
-    const recentUsers = new Set(
-        views.filter(v => v.timestamp?.toDate?.() > lastWeek || v.timestamp > lastWeek)
-            .map(v => v.userId || v.visitorId)
+    const recentVisitors = new Set(
+        visitors
+            .filter(v => v.timestamp?.toDate?.() > lastWeek || v.timestamp > lastWeek)
+            .map(v => v.visitorId || v.sessionId || v.ip)
     ).size;
 
     updateTrend('postsTrend', recentPosts, posts.length);
     updateTrend('viewsTrend', recentViews, views.length);
     updateTrend('commentsTrend', recentComments, comments.length);
-    updateTrend('usersTrend', recentUsers, 
-        new Set(views.map(v => v.userId || v.visitorId)).size);
+    updateTrend('usersTrend', recentVisitors, uniqueVisitors);
 }
 
 // Update trend indicator
