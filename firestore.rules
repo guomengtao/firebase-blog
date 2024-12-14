@@ -44,5 +44,12 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // Images
+    match /images/{imageId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if request.auth.uid == resource.data.userId || isAdmin();
+    }
   }
 }
