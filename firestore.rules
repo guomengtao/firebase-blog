@@ -51,5 +51,12 @@ service cloud.firestore {
       allow create: if isAuthenticated();
       allow update, delete: if request.auth.uid == resource.data.userId || isAdmin();
     }
+
+    // Imgur Images
+    match /imgur_images/{imageId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if request.auth.uid == resource.data.userId || isAdmin();
+    }
   }
 }
