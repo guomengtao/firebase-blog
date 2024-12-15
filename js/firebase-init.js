@@ -9,24 +9,30 @@ const firebaseConfig = {
     measurementId: "G-MWP5DF8H47"
 };
 
-// Initialize Firebase with offline persistence
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-// Enable offline persistence
-firebase.firestore().enablePersistence()
-    .catch((err) => {
-        if (err.code == 'failed-precondition') {
-            // Multiple tabs open, persistence can only be enabled in one tab at a time
-            console.warn('Multiple tabs open, offline persistence disabled');
-        } else if (err.code == 'unimplemented') {
-            // The current browser does not support persistence
-            console.warn('Current browser does not support offline persistence');
-        }
-    });
+// Initialize Firestore with settings
+const db = firebase.firestore();
+db.settings({
+    cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+    merge: true // Add merge option to prevent settings override warning
+});
 
-// Configure cache size and timing
-firebase.firestore().settings({
-    cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+// Enable offline persistence with experimentalForceOwningTab
+db.enablePersistence({
+    synchronizeTabs: true, // Enable multi-tab synchronization
+    experimentalForceOwningTab: true // Force this tab to own persistence
+}).catch((err) => {
+    if (err.code === 'failed-precondition') {
+        // Multiple tabs open, persistence can only be enabled in one tab at a time
+        console.log('Multiple tabs open, offline persistence disabled');
+    } else if (err.code === 'unimplemented') {
+        // The current browser does not support persistence
+        console.log('Current browser does not support offline persistence');
+    }
 });
 
 // Add network status monitoring
@@ -54,7 +60,7 @@ function updateNetworkStatus(online) {
     } else {
         networkStatus.style.backgroundColor = '#f44336';
         networkStatus.style.color = 'white';
-        networkStatus.textContent = '离线模式';
+        networkStatus.textContent = '离线';
     }
 }
 
@@ -65,34 +71,27 @@ window.addEventListener('offline', () => updateNetworkStatus(false));
 // Initial network status check
 updateNetworkStatus(navigator.onLine);
 
-// Export commonly used Firebase services
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-// Add error handling for Firestore operations
-const handleFirestoreError = (error) => {
-    console.error('Firestore Error:', error);
-    if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
-        if (!isOnline) {
-            return '当前处于离线模式，请检查网络连接';
-        }
-        return '连接Firebase服务器超时，请稍后重试';
+// Error handling function for Firestore operations
+function handleFirestoreError(error) {
+    console.error('Firestore error:', error);
+    if (error.code === 'unavailable') {
+        return '服务器暂时不可用，请稍后重试';
+    } else if (error.code === 'permission-denied') {
+        return '没有权限执行此操作';
     }
-    return error.message;
-};
+    return '发生错误，请重试';
+}
 
 // Utility function for Firestore operations with retry
 async function withRetry(operation, maxRetries = 3) {
     let lastError;
-    for (let i = 0; i < maxRetries; i++) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
             return await operation();
         } catch (error) {
             lastError = error;
-            if (!navigator.onLine || error.code === 'unavailable' || error.code === 'deadline-exceeded') {
-                // Wait before retrying (exponential backoff)
-                await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+            if (error.code === 'unavailable' && attempt < maxRetries - 1) {
+                await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
                 continue;
             }
             throw error;
@@ -101,8 +100,9 @@ async function withRetry(operation, maxRetries = 3) {
     throw lastError;
 }
 
-// Export utility functions
+// Export utility functions and database instance
 window.fb = {
+    db,
     handleFirestoreError,
     withRetry,
     isOnline: () => isOnline
