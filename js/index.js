@@ -1,42 +1,129 @@
-// Initialize Firebase services
-const db = window.fb.db;
+// Import db from firebase-init.js
+import { db } from './firebase-init.js';
 
 // Load posts when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    loadPosts();
-    logHomePageView();
-});
-
-// Load posts from Firestore
-async function loadPosts() {
+document.addEventListener('DOMContentLoaded', function() {
     const postsContainer = document.getElementById('posts');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const categoriesList = document.getElementById('categoriesList');
+    const popularTags = document.getElementById('popularTags');
     const loadingSpinner = document.getElementById('loadingSpinner');
-    const errorMessage = document.getElementById('errorMessage');
+    const pagination = document.getElementById('pagination');
 
-    try {
-        showLoading(true);
-        hideError();
+    // Sample blog data - Replace with actual data from your database
+    let posts = [];
 
-        const posts = await window.fb.withRetry(async () => {
-            const snapshot = await db.collection('posts')
-                .where('status', '==', 'published')
-                .orderBy('timestamp', 'desc')
-                .get();
+    const categories = ['Firebase', 'Cloudinary', 'Web Development', 'Tutorial'];
+    const tags = ['firebase', 'web development', 'tutorial', 'cloudinary', 'images'];
 
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+    async function loadPosts() {
+        try {
+            showLoading(true);
+            hideError();
+
+            const postsData = await window.fb.withRetry(async () => {
+                const snapshot = await db.collection('posts')
+                    .where('status', '==', 'published')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                return snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            });
+
+            posts = postsData;
+            filterPosts();
+            showLoading(false);
+        } catch (error) {
+            console.error('Error loading posts:', error);
+            showError(window.fb.handleFirestoreError(error));
+            showLoading(false);
+        }
+    }
+
+    function createPostCard(post) {
+        return `
+            <article class="blog-post">
+                <img src="${post.coverImage}" alt="${post.title}" class="featured-image">
+                <h2><a href="post.html?id=${post.id}" class="text-decoration-none text-dark">${post.title}</a></h2>
+                <div class="post-meta">
+                    <span><i class="fas fa-user"></i> ${post.author}</span> •
+                    <span><i class="fas fa-calendar"></i> ${formatDate(post.timestamp)}</span> •
+                    <span><i class="fas fa-folder"></i> ${post.category}</span>
+                </div>
+                <div class="post-content">
+                    ${truncateContent(post.content, 100)}
+                </div>
+                <div class="post-tags">
+                    ${post.tags.map(tag => `<a href="#" class="tag">#${tag}</a>`).join('')}
+                </div>
+            </article>
+        `;
+    }
+
+    function filterPosts() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedCategory = categoryFilter.value;
+
+        const filteredPosts = posts.filter(post => {
+            const matchesSearch = post.title.toLowerCase().includes(searchTerm) || 
+                                post.content.toLowerCase().includes(searchTerm);
+            const matchesCategory = !selectedCategory || post.category === selectedCategory;
+            return matchesSearch && matchesCategory;
         });
 
-        updatePostsUI(posts);
-        showLoading(false);
-    } catch (error) {
-        console.error('Error loading posts:', error);
-        showError(window.fb.handleFirestoreError(error));
-        showLoading(false);
+        displayPosts(filteredPosts);
     }
-}
+
+    function displayPosts(postsToShow) {
+        postsContainer.innerHTML = postsToShow.map(post => createPostCard(post)).join('');
+    }
+
+    function initializeCategoryFilter() {
+        categoryFilter.innerHTML = `
+            <option value="">All Categories</option>
+            ${categories.map(category => `
+                <option value="${category}">${category}</option>
+            `).join('')}
+        `;
+    }
+
+    function displayCategories() {
+        categoriesList.innerHTML = categories.map(category => `
+            <li><a href="#" onclick="filterByCategory('${category}'); return false;">${category}</a></li>
+        `).join('');
+    }
+
+    function displayTags() {
+        popularTags.innerHTML = tags.map(tag => `
+            <a href="#" class="tag" onclick="filterByTag('${tag}'); return false;">#${tag}</a>
+        `).join('');
+    }
+
+    // Event listeners for search and filter
+    searchInput.addEventListener('input', filterPosts);
+    categoryFilter.addEventListener('change', filterPosts);
+
+    // Filter functions for category and tag clicks
+    window.filterByCategory = function(category) {
+        categoryFilter.value = category;
+        filterPosts();
+    };
+
+    window.filterByTag = function(tag) {
+        searchInput.value = tag;
+        filterPosts();
+    };
+
+    // Initialize the page
+    loadPosts();
+    initializeCategoryFilter();
+    displayCategories();
+    displayTags();
+});
 
 // Log home page view
 async function logHomePageView() {
@@ -68,38 +155,6 @@ async function logHomePageView() {
     } catch (error) {
         console.error('Error logging home page view:', error);
     }
-}
-
-// Update posts UI
-function updatePostsUI(posts) {
-    const postsContainer = document.getElementById('posts');
-    
-    if (!posts || posts.length === 0) {
-        postsContainer.innerHTML = `
-            <div class="text-center py-5">
-                <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
-                <h3>暂无文章</h3>
-                <p class="text-muted">敬请期待新的内容</p>
-            </div>
-        `;
-        return;
-    }
-
-    postsContainer.innerHTML = posts.map(post => `
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                ${post.coverImage ? `
-                    <img src="${post.coverImage}" class="card-img-top" alt="${post.title}" style="height: 200px; object-fit: cover;">
-                ` : ''}
-                <div class="card-body">
-                    <h5 class="card-title">${post.title}</h5>
-                    <p class="card-text text-muted small">${formatDate(post.timestamp)}</p>
-                    <p class="card-text">${truncateContent(post.content, 100)}</p>
-                    <a href="post.html?id=${post.id}" class="btn btn-primary">阅读更多</a>
-                </div>
-            </div>
-        </div>
-    `).join('');
 }
 
 // Show/hide loading spinner

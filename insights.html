@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Insights</title>
+    <title>Insights</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="css/common.css" rel="stylesheet">
     <style>
         .card {
             transition: transform 0.2s;
@@ -41,10 +41,14 @@
             background-color: #ffebee;
             color: #c62828;
         }
+        .green-theme {
+            background-color: #2ecc71;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg green-theme sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">Blog</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -52,131 +56,162 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="insights.html">Insights</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="chat.html">Chat</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="editor.html">Editor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="images.html">Images</a></li>
+                    <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+                    <li class="nav-item"><a class="nav-link" href="imgur-upload.html">Imgur Upload</a></li>
+                    <li class="nav-item"><a class="nav-link" href="firebase-status.html">Firebase Status</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cloudinary-status.html">Cloudinary Status</a></li>
+                    <li class="nav-item"><a class="nav-link" href="site-map.html">Site Map</a></li>
+                    <li class="nav-item"><a class="nav-link" href="visitor-stats.html">Visitor Stats</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">Blog Insights</h1>
-        
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
+    <div class="container mt-5">
+        <div class="row">
             <div class="col-md-3">
-                <div class="card stat-card">
-                    <div class="stat-label">Total Posts</div>
-                    <div class="stat-number" id="totalPosts">0</div>
-                    <div class="trend-indicator trend-up" id="postsTrend">↑ 0%</div>
+                <div class="sidebar">
+                    <h5>Navigation</h5>
+                    <ul class="sidebar-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="editor.html">Editor</a></li>
+                        <li><a href="images.html">Images</a></li>
+                        <li><a href="upload.html">Upload</a></li>
+                        <li><a href="imgur-upload.html">Imgur Upload</a></li>
+                        <li><a href="firebase-status.html">Firebase Status</a></li>
+                        <li><a href="cloudinary-status.html">Cloudinary Status</a></li>
+                        <li><a href="imgur-status.html">Imgur Status</a></li>
+                        <li><a href="site-map.html">Site Map</a></li>
+                        <li><a href="chat.html">Chat</a></li>
+                        <li><a href="insights.html">Insights</a></li>
+                        <li><a href="post.html">Post</a></li>
+                        <li><a href="visitor-stats.html">Visitor Stats</a></li>
+                    </ul>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card">
-                    <div class="stat-label">Total Views</div>
-                    <div class="stat-number" id="totalViews">0</div>
-                    <div class="trend-indicator trend-up" id="viewsTrend">↑ 0%</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card stat-card">
-                    <div class="stat-label">Total Comments</div>
-                    <div class="stat-number" id="totalComments">0</div>
-                    <div class="trend-indicator trend-up" id="commentsTrend">↑ 0%</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card stat-card">
-                    <div class="stat-label">Active Users</div>
-                    <div class="stat-number" id="activeUsers">0</div>
-                    <div class="trend-indicator trend-up" id="usersTrend">↑ 0%</div>
-                </div>
-            </div>
-        </div>
+            <div class="col-md-9">
+                <div id="insights">
+                    <h1 class="text-center mb-4">Blog Insights</h1>
+                    
+                    <!-- Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="stat-label">Total Posts</div>
+                                <div class="stat-number" id="totalPosts">0</div>
+                                <div class="trend-indicator trend-up" id="postsTrend">↑ 0%</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="stat-label">Total Views</div>
+                                <div class="stat-number" id="totalViews">0</div>
+                                <div class="trend-indicator trend-up" id="viewsTrend">↑ 0%</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="stat-label">Total Comments</div>
+                                <div class="stat-number" id="totalComments">0</div>
+                                <div class="trend-indicator trend-up" id="commentsTrend">↑ 0%</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="stat-label">Active Users</div>
+                                <div class="stat-number" id="activeUsers">0</div>
+                                <div class="trend-indicator trend-up" id="usersTrend">↑ 0%</div>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Charts Row 1 -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Popular Posts</h5>
-                        <canvas id="popularPostsChart"></canvas>
+                    <!-- Charts Row 1 -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Popular Posts</h5>
+                                    <canvas id="popularPostsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Categories Distribution</h5>
+                                    <canvas id="categoriesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Categories Distribution</h5>
-                        <canvas id="categoriesChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Charts Row 2 -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Weekly Activity</h5>
-                        <canvas id="weeklyActivityChart"></canvas>
+                    <!-- Charts Row 2 -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Weekly Activity</h5>
+                                    <canvas id="weeklyActivityChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Engagement Metrics</h5>
+                                    <canvas id="engagementChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Engagement Metrics</h5>
-                        <canvas id="engagementChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Latest Posts -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Latest Posts</h5>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Date</th>
-                                <th>Views</th>
-                                <th>Comments</th>
-                            </tr>
-                        </thead>
-                        <tbody id="latestPosts">
-                        </tbody>
-                    </table>
+                    <!-- Latest Posts -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Latest Posts</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Date</th>
+                                            <th>Views</th>
+                                            <th>Comments</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="latestPosts">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="footer mt-auto py-3 bg-light">
+    <footer class="site-footer green-theme">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 footer-section">
                     <h5 class="footer-heading">Quick Links</h5>
                     <ul class="footer-links">
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="editor.html">Write Post</a></li>
-                        <li><a href="upload.html">Cloudinary Upload</a></li>
+                        <li><a href="editor.html">Editor</a></li>
+                        <li><a href="images.html">Images</a></li>
+                        <li><a href="upload.html">Upload</a></li>
                         <li><a href="imgur-upload.html">Imgur Upload</a></li>
-                        <li><a href="images.html">Image Gallery</a></li>
+                        <li><a href="firebase-status.html">Firebase Status</a></li>
+                        <li><a href="cloudinary-status.html">Cloudinary Status</a></li>
+                        <li><a href="imgur-status.html">Imgur Status</a></li>
+                        <li><a href="site-map.html">Site Map</a></li>
                         <li><a href="chat.html">Chat</a></li>
                         <li><a href="insights.html">Insights</a></li>
-                        <li><a href="firebase-status.html">Status</a></li>
+                        <li><a href="post.html">Post</a></li>
+                        <li><a href="visitor-stats.html">Visitor Stats</a></li>
                     </ul>
                 </div>
             </div>
@@ -186,6 +221,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="insights.js"></script>
+    <script src="js/insights.js" type="module"></script>
+    <script src="js/common.js" type="module"></script>
 </body>
 </html>

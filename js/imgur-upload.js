@@ -2,9 +2,11 @@
 const IMGUR_CLIENT_ID = '212b229cc73869d';
 const IMGUR_API_URL = 'https://api.imgur.com/3/image';
 
-// Firebase initialization
+// Import db from firebase-init.js
+import { db } from './firebase-init.js';
+
+// Initialize Firebase Auth
 const auth = firebase.auth();
-const db = firebase.firestore();
 
 // DOM Elements
 const uploadArea = document.getElementById('uploadArea');
@@ -225,11 +227,61 @@ function showToast(message, type = 'info') {
     });
 }
 
-// Initialize gallery when auth state changes
-auth.onAuthStateChanged(user => {
-    if (user) {
-        loadGallery();
-    } else {
-        gallery.innerHTML = '<p class="text-center">Please sign in to view your uploads</p>';
+// Function to check Imgur connection status
+async function checkImgurConnection() {
+    try {
+        const response = await fetch(IMGUR_API_URL, {
+            method: 'GET',
+            headers: {
+                Authorization: `Client-ID ${IMGUR_CLIENT_ID}`
+            }
+        });
+
+        if (response.ok) {
+            showToast('Connected to Imgur', 'success');
+            fetchImgurFiles();
+        } else {
+            showToast('Failed to connect to Imgur', 'danger');
+        }
+    } catch (error) {
+        showToast('Error connecting to Imgur', 'danger');
     }
-});
+}
+
+// Function to fetch files from Imgur
+async function fetchImgurFiles() {
+    try {
+        const response = await fetch(`${IMGUR_API_URL}/account/me/images`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer YOUR_ACCESS_TOKEN`
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            displayImgurFiles(data.data);
+        } else {
+            showToast('Failed to fetch Imgur files', 'danger');
+        }
+    } catch (error) {
+        showToast('Error fetching Imgur files', 'danger');
+    }
+}
+
+// Function to display Imgur files
+function displayImgurFiles(files) {
+    gallery.innerHTML = '';
+    files.forEach(file => {
+        const imgElement = document.createElement('img');
+        imgElement.src = file.link;
+        imgElement.alt = file.title || 'Imgur Image';
+        gallery.appendChild(imgElement);
+    });
+}
+
+// Call the function to check Imgur connection
+document.addEventListener('DOMContentLoaded', checkImgurConnection);
+
+// Initialize gallery without requiring authentication
+loadGallery();

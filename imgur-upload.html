@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imgur Upload - Blog</title>
+    <title>Imgur Upload</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="css/common.css" rel="stylesheet">
@@ -91,38 +91,62 @@
             color: #6c757d;
             margin-bottom: 1rem;
         }
+        .green-theme {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+        .green-theme a {
+            color: #fff;
+        }
+        .green-theme a:hover {
+            color: #fff;
+            text-decoration: none;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-right: 1px solid #ccc;
+        }
+        .sidebar-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar-links li {
+            margin-bottom: 1rem;
+        }
+        .sidebar-links a {
+            text-decoration: none;
+            color: #337ab7;
+        }
+        .sidebar-links a:hover {
+            color: #23527c;
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="site-header">
-        <div class="container text-center">
-            <h1>Imgur Upload</h1>
-            <p>Upload and manage your images with Imgur</p>
-        </div>
-    </header>
-
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <nav class="navbar navbar-expand-lg green-theme sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">Blog</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="upload.html">Cloudinary Upload</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="imgur-upload.html">Imgur Upload</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="firebase-status.html">Status</a>
-                    </li>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="editor.html">Editor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="images.html">Images</a></li>
+                    <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+                    <li class="nav-item"><a class="nav-link" href="imgur-upload.html">Imgur Upload</a></li>
+                    <li class="nav-item"><a class="nav-link" href="firebase-status.html">Firebase Status</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cloudinary-status.html">Cloudinary Status</a></li>
+                    <li class="nav-item"><a class="nav-link" href="site-map.html">Site Map</a></li>
+                    <li class="nav-item"><a class="nav-link" href="visitor-stats.html">Visitor Stats</a></li>
                 </ul>
                 <div id="userMenuContainer">
                     <!-- User menu will be inserted here by common.js -->
@@ -131,31 +155,53 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container mt-4">
-        <div id="uploadArea" class="upload-area">
-            <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
-            <h4>Drag and drop images here</h4>
-            <p class="text-muted">or</p>
-            <input type="file" id="fileInput" class="d-none" accept="image/*" multiple>
-            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-                Select Images
-            </button>
-        </div>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <h5>Navigation</h5>
+                    <ul class="sidebar-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="editor.html">Editor</a></li>
+                        <li><a href="images.html">Images</a></li>
+                        <li><a href="upload.html">Upload</a></li>
+                        <li><a href="imgur-upload.html">Imgur Upload</a></li>
+                        <li><a href="firebase-status.html">Firebase Status</a></li>
+                        <li><a href="cloudinary-status.html">Cloudinary Status</a></li>
+                        <li><a href="imgur-status.html">Imgur Status</a></li>
+                        <li><a href="site-map.html">Site Map</a></li>
+                        <li><a href="chat.html">Chat</a></li>
+                        <li><a href="insights.html">Insights</a></li>
+                        <li><a href="post.html">Post</a></li>
+                        <li><a href="visitor-stats.html">Visitor Stats</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div id="uploadArea" class="upload-area">
+                    <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
+                    <h4>Drag and drop images here</h4>
+                    <p class="text-muted">or</p>
+                    <input type="file" id="fileInput" class="d-none" accept="image/*" multiple>
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        Select Images
+                    </button>
+                </div>
 
-        <div class="loading-spinner" id="loadingSpinner">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div id="gallery" class="gallery">
+                    <!-- Images will be loaded here -->
+                </div>
             </div>
         </div>
+    </div>
 
-        <div id="gallery" class="gallery">
-            <!-- Images will be loaded here -->
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="site-footer">
+    <footer class="site-footer green-theme">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 footer-section">
@@ -166,13 +212,15 @@
                     <h5 class="footer-heading">Quick Links</h5>
                     <ul class="footer-links">
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="editor.html">Write Post</a></li>
-                        <li><a href="upload.html">Cloudinary Upload</a></li>
+                        <li><a href="editor.html">Editor</a></li>
+                        <li><a href="images.html">Images</a></li>
+                        <li><a href="upload.html">Upload</a></li>
                         <li><a href="imgur-upload.html">Imgur Upload</a></li>
-                        <li><a href="images.html">Image Gallery</a></li>
-                        <li><a href="chat.html">Chat</a></li>
-                        <li><a href="insights.html">Insights</a></li>
-                        <li><a href="firebase-status.html">Status</a></li>
+                        <li><a href="firebase-status.html">Firebase Status</a></li>
+                        <li><a href="cloudinary-status.html">Cloudinary Status</a></li>
+                        <li><a href="imgur-status.html">Imgur Status</a></li>
+                        <li><a href="site-map.html">Site Map</a></li>
+                        <li><a href="visitor-stats.html">Visitor Stats</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 footer-section">
@@ -195,7 +243,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/firebase-init.js"></script>
-    <script src="js/common.js"></script>
-    <script src="js/imgur-upload.js"></script>
+    <script src="js/imgur-upload.js" type="module"></script>
+    <script src="js/common.js" type="module"></script>
 </body>
 </html>

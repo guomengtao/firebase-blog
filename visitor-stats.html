@@ -3,14 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post</title>
+    <title>Visitor Statistics</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/common.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .green-theme {
-            background-color: #2ecc71;
-            color: #fff;
+        .stats-card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .table th {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
         }
     </style>
 </head>
@@ -32,8 +55,6 @@
                     <li class="nav-item"><a class="nav-link" href="cloudinary-status.html">Cloudinary Status</a></li>
                     <li class="nav-item"><a class="nav-link" href="site-map.html">Site Map</a></li>
                     <li class="nav-item"><a class="nav-link" href="visitor-stats.html">Visitor Stats</a></li>
-                    <li class="nav-item"><a class="nav-link" href="chat.html">Chat</a></li>
-                    <li class="nav-item"><a class="nav-link" href="insights.html">Insights</a></li>
                 </ul>
             </div>
         </div>
@@ -62,34 +83,54 @@
                 </div>
             </div>
             <div class="col-md-9">
-                <div id="post">
-                    <!-- Loading Spinner -->
-                    <div id="loadingSpinner" class="text-center my-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">加载中...</span>
-                        </div>
-                        <p class="mt-2">加载文章中...</p>
+                <!-- Total Visitors Card -->
+                <div class="card stats-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Visitors</h5>
+                        <h2 id="totalVisitors" class="display-4 text-primary">0</h2>
                     </div>
-
-                    <!-- Error Message -->
-                    <div id="errorMessage" class="alert alert-danger" style="display: none;">
-                    </div>
-                    <button id="retryButton" class="btn btn-primary mb-3" style="display: none;">
-                        <i class="fas fa-sync-alt"></i> 重试
-                    </button>
-
-                    <!-- Post Content -->
-                    <article id="postContent" style="display: none;">
-                        <h1 id="postTitle" class="mb-3"></h1>
-                        <div class="text-muted mb-4">
-                            <small>
-                                <i class="fas fa-user"></i> <span id="postAuthor"></span> &nbsp;|&nbsp;
-                                <i class="fas fa-calendar"></i> <span id="postDate"></span>
-                            </small>
-                        </div>
-                        <div class="post-body"></div>
-                    </article>
                 </div>
+
+                <!-- Visitor Trends Chart -->
+                <div class="card stats-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Visitor Trends (Last 30 Days)</h5>
+                        <div class="chart-container">
+                            <canvas id="visitorChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page Views Table -->
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Top Page Views</h5>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Page</th>
+                                        <th>Views</th>
+                                        <th>Last Visited</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pageViewsBody">
+                                    <!-- Page views will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="text-center my-4 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
             </div>
         </div>
     </div>
@@ -119,21 +160,6 @@
         </div>
     </footer>
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    
-    <!-- Markdown -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <!-- Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
-    <script src="js/firebase-init.js"></script>
-    <script src="js/post.js" type="module"></script>
-    <script src="js/common.js" type="module"></script>
+    <script src="js/visitor-stats.js" type="module"></script>
 </body>
 </html>

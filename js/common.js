@@ -1,5 +1,12 @@
+import { logPageView } from './visitor-stats.js';
+
 // Common functionality for all pages
 document.addEventListener('DOMContentLoaded', function() {
+    // Log page view when the page loads
+    const path = window.location.pathname;
+    const cleanPath = path.replace(/^\//, '').replace('.html', '') || 'index';
+    logPageView(cleanPath);
+
     // Initialize user menu
     initializeUserMenu();
     

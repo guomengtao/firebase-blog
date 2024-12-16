@@ -1,10 +1,12 @@
+// Import db from firebase-init.js
+import { db } from './firebase-init.js';
+
 // Cloudinary configuration
 const cloudName = 'dqxud2dnr';
 const uploadPreset = 'ml_default';
 
-// Initialize Firebase
+// Initialize Firebase Auth
 const auth = firebase.auth();
-const db = firebase.firestore();
 
 // DOM Elements
 const uploadArea = document.getElementById('uploadArea');

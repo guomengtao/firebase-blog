@@ -10,9 +10,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+firebase.initializeApp(firebaseConfig);
 
 // Initialize Firestore with settings
 const db = firebase.firestore();
@@ -34,6 +32,9 @@ db.enablePersistence({
         console.log('Current browser does not support offline persistence');
     }
 });
+
+// Initialize Firebase Auth
+const auth = firebase.auth();
 
 // Add network status monitoring
 let isOnline = true;
@@ -101,9 +102,4 @@ async function withRetry(operation, maxRetries = 3) {
 }
 
 // Export utility functions and database instance
-window.fb = {
-    db,
-    handleFirestoreError,
-    withRetry,
-    isOnline: () => isOnline
-};
+export { db, auth, handleFirestoreError, withRetry };

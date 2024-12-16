@@ -1,254 +1,182 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片管理</title>
+    <title>Images</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f2f5;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .nav-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #4CAF50;
-            text-decoration: none;
-        }
-
-        .nav-link:hover {
-            text-decoration: underline;
-        }
-
-        .upload-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .upload-zone {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upload-zone:hover {
-            border-color: #4CAF50;
-            background: #f0f7f0;
-        }
-
-        .upload-zone.dragover {
-            border-color: #4CAF50;
-            background: #e8f5e9;
-        }
-
-        .upload-list {
-            margin-top: 20px;
-        }
-
-        .upload-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-
-        .upload-item .progress {
-            flex: 1;
-            height: 20px;
-            margin: 0 10px;
-            background: #f0f0f0;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .upload-item .progress-bar {
-            height: 100%;
-            background: #4CAF50;
-            width: 0;
-            transition: width 0.3s ease;
-        }
-
-        .upload-item .status {
-            margin-left: 10px;
-            font-size: 14px;
-        }
-
-        .upload-item .status.success {
-            color: #4CAF50;
-        }
-
-        .upload-item .status.error {
-            color: #f44336;
-        }
-
-        .gallery {
+        .image-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+            gap: 1rem;
+            padding: 1rem;
         }
 
-        .gallery-item {
-            position: relative;
+        .image-card {
+            border: 1px solid #ddd;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
         }
 
-        .gallery-item img {
+        .image-card:hover {
+            transform: scale(1.05);
+        }
+
+        .image-card img {
             width: 100%;
-            height: 200px;
+            height: 150px;
             object-fit: cover;
-            display: block;
         }
 
-        .gallery-item .info {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 10px;
-            font-size: 12px;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
+        .image-info {
+            padding: 0.5rem;
         }
 
-        .gallery-item:hover .info {
-            transform: translateY(0);
-        }
-
-        .gallery-item .delete {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,255,255,0.9);
-            color: #f44336;
-            width: 24px;
-            height: 24px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .gallery-item:hover .delete {
-            opacity: 1;
-        }
-
-        .storage-info {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #e8f5e9;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .storage-bar {
-            flex: 1;
-            height: 20px;
-            background: #f0f0f0;
-            border-radius: 10px;
+        .image-info h5 {
+            margin: 0;
+            font-size: 1rem;
+            white-space: nowrap;
             overflow: hidden;
-            margin: 0 20px;
+            text-overflow: ellipsis;
         }
 
-        .storage-bar-fill {
-            height: 100%;
-            background: #4CAF50;
-            width: 0;
-            transition: width 0.3s ease;
-        }
-
-        .error-log {
-            margin-top: 20px;
-            padding: 10px;
-            background: #ffebee;
-            border-radius: 4px;
-            display: none;
-        }
-
-        @media (max-width: 600px) {
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
+        .image-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: #f8f9fa;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="index.html" class="nav-link">← 返回博客首页</a>
-        
-        <h1>图片管理</h1>
-
-        <div class="storage-info">
-            <span>存储空间使用情况：</span>
-            <div class="storage-bar">
-                <div class="storage-bar-fill" id="storageBarFill"></div>
+    <nav class="navbar navbar-expand-lg green-theme sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Blog</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="editor.html">Editor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="images.html">Images</a></li>
+                    <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+                    <li class="nav-item"><a class="nav-link" href="imgur-upload.html">Imgur Upload</a></li>
+                    <li class="nav-item"><a class="nav-link" href="firebase-status.html">Firebase Status</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cloudinary-status.html">Cloudinary Status</a></li>
+                    <li class="nav-item"><a class="nav-link" href="site-map.html">Site Map</a></li>
+                    <li class="nav-item"><a class="nav-link" href="visitor-stats.html">Visitor Stats</a></li>
+                </ul>
             </div>
-            <span id="storageUsage">计算中...</span>
         </div>
+    </nav>
 
-        <div class="upload-section">
-            <div class="upload-zone" id="uploadZone">
-                <p>拖放图片到这里或点击上传</p>
-                <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <h5>Navigation</h5>
+                    <ul class="sidebar-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="editor.html">Editor</a></li>
+                        <li><a href="images.html">Images</a></li>
+                        <li><a href="upload.html">Upload</a></li>
+                        <li><a href="imgur-upload.html">Imgur Upload</a></li>
+                        <li><a href="firebase-status.html">Firebase Status</a></li>
+                        <li><a href="cloudinary-status.html">Cloudinary Status</a></li>
+                        <li><a href="imgur-status.html">Imgur Status</a></li>
+                        <li><a href="site-map.html">Site Map</a></li>
+                        <li><a href="chat.html">Chat</a></li>
+                        <li><a href="insights.html">Insights</a></li>
+                        <li><a href="post.html">Post</a></li>
+                        <li><a href="visitor-stats.html">Visitor Stats</a></li>
+                    </ul>
+                </div>
             </div>
-            
-            <div class="upload-list" id="uploadList">
-                <!-- 上传项会动态添加到这里 -->
+            <div class="col-md-9">
+                <div id="images">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>Image Gallery</h1>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="window.location.href='upload.html'">
+                                Upload to Cloudinary
+                            </button>
+                            <button class="btn btn-secondary" onclick="window.location.href='imgur-upload.html'">
+                                Upload to Imgur
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="searchInput" placeholder="Search images...">
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="sourceFilter">
+                                        <option value="">All Sources</option>
+                                        <option value="cloudinary">Cloudinary</option>
+                                        <option value="imgur">Imgur</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="sortOrder">
+                                        <option value="newest">Newest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                        <option value="name">Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Grid -->
+                    <div class="image-grid" id="imageGrid">
+                        <!-- Images will be dynamically loaded here -->
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="text-center my-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div class="error-log" id="errorLog"></div>
-        </div>
-
-        <div class="gallery" id="imageGallery">
-            <!-- 图片会动态添加到这里 -->
         </div>
     </div>
 
-    <div class="col-md-4 footer-section">
-        <h5 class="footer-heading">Quick Links</h5>
-        <ul class="footer-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="editor.html">Write Post</a></li>
-            <li><a href="upload.html">Cloudinary Upload</a></li>
-            <li><a href="imgur-upload.html">Imgur Upload</a></li>
-            <li><a href="images.html">Image Gallery</a></li>
-            <li><a href="chat.html">Chat</a></li>
-            <li><a href="insights.html">Insights</a></li>
-            <li><a href="firebase-status.html">Status</a></li>
-        </ul>
-    </div>
+    <footer class="site-footer green-theme">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-section">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="editor.html">Editor</a></li>
+                        <li><a href="images.html">Images</a></li>
+                        <li><a href="upload.html">Upload</a></li>
+                        <li><a href="imgur-upload.html">Imgur Upload</a></li>
+                        <li><a href="firebase-status.html">Firebase Status</a></li>
+                        <li><a href="cloudinary-status.html">Cloudinary Status</a></li>
+                        <li><a href="imgur-status.html">Imgur Status</a></li>
+                        <li><a href="site-map.html">Site Map</a></li>
+                        <li><a href="chat.html">Chat</a></li>
+                        <li><a href="insights.html">Insights</a></li>
+                        <li><a href="post.html">Post</a></li>
+                        <li><a href="visitor-stats.html">Visitor Stats</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    <script src="images.js"></script>
+    <script src="js/images.js" type="module"></script>
+    <script src="js/common.js" type="module"></script>
 </body>
 </html>
